@@ -14,14 +14,20 @@ namespace Assent.Reporters.DiffPrograms
             SearchPaths = searchPaths;
         }
 
-
+        protected virtual string CreateProcessStartArgs(
+            string receivedFile, string approvedFile)
+        {
+            return $"\"{receivedFile}\" \"{approvedFile}\"";
+        }
+        
         public virtual bool Launch(string receivedFile, string approvedFile)
         {
             var path = SearchPaths.FirstOrDefault(File.Exists);
             if (path == null)
                 return false;
 
-            var process = Process.Start(new ProcessStartInfo(path, $"\"{receivedFile}\" \"{approvedFile}\""));
+            var process = Process.Start(new ProcessStartInfo(
+                path, CreateProcessStartArgs(receivedFile, approvedFile)));
             process.WaitForExit();
             return true;
         }

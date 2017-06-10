@@ -58,19 +58,6 @@ Task("__Clean")
 Task("__Restore")
     .Does(() => DotNetCoreRestore());
 
-Task("__UpdateProjectJsonVersion")
-    .Does(() =>
-{
-    foreach(var projectJson in GetFiles("**/project.json").Select(p => p.FullPath))
-    {
-        RestoreFileOnCleanup(projectJson);
-        Information("Updating {0} version -> {1}", projectJson, nugetVersion);
-
-        TransformConfig(projectJson, projectJson, new TransformationCollection {
-            { "version", nugetVersion }
-        });
-    }
-});
 
 private void RestoreFileOnCleanup(string file)
 {
@@ -85,10 +72,10 @@ private void RestoreFileOnCleanup(string file)
 Task("__Build")
     .IsDependentOn("__Clean")
     .IsDependentOn("__Restore")
-    .IsDependentOn("__UpdateProjectJsonVersion")
+    //.IsDependentOn("__UpdateProjectJsonVersion")
     .Does(() =>
 {
-    DotNetCoreBuild("**/project.json", new DotNetCoreBuildSettings
+    DotNetCoreBuild("", new DotNetCoreBuildSettings
     {
         Configuration = configuration
     });
@@ -98,7 +85,7 @@ Task("__Test")
     .IsDependentOn("__Build")
     .Does(() =>
 {
-    GetFiles("**/*Tests/project.json")
+    GetFiles("**/*Tests/*.csproj")
         .ToList()
         .ForEach(testProjectFile => 
         {
